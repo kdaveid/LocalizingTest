@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc.Razor;
 using System.Globalization;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Localization.Routing;
 
 namespace LocalizingTest
 {
@@ -43,15 +44,16 @@ namespace LocalizingTest
                 //new CultureInfo("en-US"),
             };
 
-            services.Configure<RequestLocalizationOptions>(s =>
+            services.Configure<RequestLocalizationOptions>(s => 
             {
                 s.SupportedCultures = supportedCultures;
-                s.SupportedUICultures = supportedCultures;
+                s.SupportedUICultures  = supportedCultures;
                 s.DefaultRequestCulture = new RequestCulture(culture: "en-GB", uiCulture: "en-GB");
                 s.RequestCultureProviders.Clear();
                 s.RequestCultureProviders.Insert(0, new QueryStringRequestCultureProvider());
-                s.RequestCultureProviders.Insert(1, new CookieRequestCultureProvider() { CookieName = CULTURE_COOKIE_KEY });
-                s.RequestCultureProviders.Insert(2, new AcceptLanguageHeaderRequestCultureProvider());
+                //s.RequestCultureProviders.Insert(0, new RouteDataRequestCultureProvider());
+                //s.RequestCultureProviders.Insert(2, new CookieRequestCultureProvider() { CookieName = CULTURE_COOKIE_KEY, Options = options });
+                s.RequestCultureProviders.Insert(1, new AcceptLanguageHeaderRequestCultureProvider());
             });
 
 
@@ -81,12 +83,16 @@ namespace LocalizingTest
             var locOptions = app.ApplicationServices.GetService<IOptions<RequestLocalizationOptions>>();
             app.UseRequestLocalization(locOptions.Value);
 
-            app.UseMvc(routes =>
-            {
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
-            });
+            app.UseMvc();//routes =>
+            // {
+            //     //routes.MapRoute(
+            //         // name: "no-culture-default",
+            //         // template: "de/{controller=Home}/{action=Index}/{id?}");
+
+            //     routes.MapRoute(
+            //         name: "default",
+            //         template: "{culture}/{controller=Home}/{action=Index}/{id?}");
+            // });
         }
     }
 }
